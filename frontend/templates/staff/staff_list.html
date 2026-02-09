@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+{% block title %}
+User Management
+{% endblock title %}
+
+{% block body %}
+<!-- MAIN -->
+<div class="main">
+
+    <div class="header">
+        <h1>User Management</h1>
+        <button class="add-btn" onclick="UserPage.open()">+ Add User</button>
+    </div>
+
+    <!-- TABLE -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+
+                <th>Role</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="userTable">
+            {% for user in users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                {% if user.is_active %}
+                    <td><span class="status active">Active</span></td>
+                {% else %}
+                    <td><span class="status inactive">Inactive</span></td>
+                {% endif %}
+                <td>
+                    <button class="action-btn edit" onclick="UserPage.edit(this)">Edit</button>
+                    <button class="action-btn delete" onclick="Common.deleteRow(this)">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="userModal">
+    <div class="modal-content">
+
+        <h2>Add User</h2>
+
+        <!-- FORM REQUIRED -->
+        <form onsubmit="event.preventDefault(); UserPage.add();">
+
+            <input type="text" id="nameInput" placeholder="Full Name">
+            <input type="email" id="emailInput" placeholder="Email">
+            <textarea id="addressInput" placeholder="Address"></textarea>
+
+            <select id="roleInput">
+                <option value="">Select Role</option>
+                <option>Admin</option>
+                <option>Staff</option>
+            </select>
+
+            <select id="statusInput">
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+
+            <div class="modal-actions">
+                <button type="submit" class="add-btn">Submit</button>
+                <button type="button" class="add-btn close-btn" onclick="UserPage.close()">Cancel</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock body %}
