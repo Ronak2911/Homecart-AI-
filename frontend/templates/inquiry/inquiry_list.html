@@ -1,0 +1,208 @@
+{% extends 'base/base.html' %}
+
+{% block body %}
+
+<div class="container-fluid py-3">
+
+  <!-- PAGE HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 fw-semibold">
+      Inquiry Management
+      {% if user.role == "staff" %}
+        <span class="text-muted fs-6">(My Assigned Inquiries)</span>
+      {% endif %}
+    </h4>
+  </div>
+
+
+  <!-- FILTER CARD -->
+  <div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+
+      <form method="GET" class="row g-2 align-items-end">
+
+        <!-- City -->
+        <div class="col-md-2">
+          <label class="form-label small text-muted mb-1">City</label>
+          <input name="city" class="form-control form-control-sm"
+                 placeholder="Enter city"
+                 value="{{ request.args.get('city','') }}">
+        </div>
+
+        <!-- Property Type -->
+        <div class="col-md-2">
+          <label class="form-label small text-muted mb-1">Property Type</label>
+          <select name="type" class="form-select form-select-sm">
+            <option value="">All</option>
+            <option>Apartment</option>
+            <option>Villa</option>
+            <option>Plot</option>
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="col-md-2">
+          <label class="form-label small text-muted mb-1">Status</label>
+          <select name="status" class="form-select form-select-sm">
+            <option value="">All</option>
+            <option value="open">Open</option>
+            <option value="contacted">Contacted</option>
+            <option value="visited">Visited</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <!-- Sort -->
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Sort</label>
+          <select name="sort" class="form-select form-select-sm">
+            <option value="">Default</option>
+            <option value="newest">Newest First</option>
+            <option value="budget_low">Budget Low → High</option>
+            <option value="budget_high">Budget High → Low</option>
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-primary btn-sm w-100">
+            Apply Filter
+          </button>
+
+          <a href="{{ request.path }}"
+             class="btn btn-outline-secondary btn-sm w-100">
+             Reset
+          </a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- TABLE CARD -->
+  <div class="card shadow-sm border-0">
+
+    <div class="card-body p-0">
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+          <thead class="table-light">
+            <tr class="text-muted small">
+              <th>WhatsApp</th>
+              <th>City</th>
+              <th>Area</th>
+              <th>Budget</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for i in inquiries %}
+
+            <tr>
+
+              <!-- WhatsApp -->
+              <td class="fw-semibold">
+                {{ i.whatsappnumber }}
+              </td>
+
+              <!-- City -->
+              <td>
+                {{ i.requirements.location.city }}
+              </td>
+
+              <!-- Area -->
+              <td>
+                {{ i.requirements.location.area }}
+              </td>
+
+              <!-- Budget -->
+              <td>
+                {% if i.requirements.budgetmin and i.requirements.budgetmax %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">
+                    {{ (i.requirements.budgetmin // 100000) }}L–
+                    {{ (i.requirements.budgetmax // 100000) }}L
+                  </span>
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+
+              <!-- Property Type -->
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary border">
+                  {{ i.requirements.propertytype }}
+                </span>
+              </td>
+
+              <!-- Status -->
+              <td>
+
+                {% if i.inquirystatus == "open" %}
+                  <span class="badge bg-primary-subtle text-primary border">
+                    Open
+                  </span>
+
+                {% elif i.inquirystatus == "contacted" %}
+                  <span class="badge bg-warning-subtle text-warning border">
+                    Contacted
+                  </span>
+
+                {% elif i.inquirystatus == "visited" %}
+                  <span class="badge bg-info-subtle text-info border">
+                    Visited
+                  </span>
+
+                {% elif i.inquirystatus == "closed" %}
+                  <span class="badge bg-success-subtle text-success border">
+                    Closed
+                  </span>
+
+                {% else %}
+                  <span class="badge bg-secondary">
+                    {{ i.inquirystatus }}
+                  </span>
+                {% endif %}
+
+              </td>
+
+              <!-- Source -->
+              <td>
+                <span class="text-muted small">
+                  {{ i.source }}
+                </span>
+              </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+              <td colspan="7"
+                  class="text-center text-muted py-4">
+                No inquiries found
+              </td>
+            </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

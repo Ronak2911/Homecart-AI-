@@ -1,0 +1,93 @@
+{% extends 'base/base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid">
+  <h3 class="mb-4">My Profile</h3>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-7">
+
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <!-- HEADER -->
+          <div class="d-flex align-items-center mb-4">
+            <div class="rounded-circle bg-primary text-white
+                        d-flex align-items-center justify-content-center"
+                 style="width:70px;height:70px;font-size:28px;">
+              {{ user.name[0]|upper }}
+            </div>
+
+            <div class="ms-3">
+              <h5 class="mb-1">{{ user.name }}</h5>
+              <span class="text-muted">
+                {{ user.role|capitalize }}
+              </span>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- PROFILE DETAILS -->
+          <div class="row g-4 mt-2">
+
+            <div class="col-md-6">
+              <label class="form-label text-muted">Full Name</label>
+              <div class="form-control bg-light">
+                {{ user.name }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted">Email Address</label>
+              <div class="form-control bg-light">
+                {{ user.email }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted">Role</label>
+              <div class="form-control bg-light">
+                {{ user.role|capitalize }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted">City</label>
+              <div class="form-control bg-light">
+                {{ user.city }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted">Account Status</label>
+              <div>
+                {% if user.isactive %}
+                  <span class="badge bg-success px-3 py-2">
+                    Active
+                  </span>
+                {% else %}
+                  <span class="badge bg-danger px-3 py-2">
+                    Inactive
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FOOTER NOTE -->
+      <div class="text-muted text-center mt-3" style="font-size:13px;">
+        Profile information is managed by the system administrator.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
