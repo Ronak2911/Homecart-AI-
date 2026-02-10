@@ -47,6 +47,13 @@ def create_app():
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(webhook_bp)  # ✅ THIS MAKES /webhook LIVE
 
+
+    @app.before_request
+def allow_webhook_without_redirect():
+    if request.path == "/webhook":
+        return None
+
+
     @app.route("/")
     def home():
         return redirect(url_for("auth.login"))
