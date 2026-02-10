@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 
 # Load backend/.env explicitly
 ENV_PATH = os.path.join(os.path.dirname(__file__), "backend", ".env")
