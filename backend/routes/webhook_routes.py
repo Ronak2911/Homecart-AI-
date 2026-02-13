@@ -260,3 +260,17 @@ def send_product_list(to):
             }
         }
     })
+
+@webhook_bp.route("/data-deletion")
+def data_deletion():
+    return """
+    <h2>Data Deletion Instructions</h2>
+    <p>
+    Users can request deletion of their data by contacting us at:
+    <b>your@email.com</b>
+    </p>
+    <p>
+    Upon request, we will delete all stored user information including
+    phone number, messages, and profile data.
+    </p>
+    """
