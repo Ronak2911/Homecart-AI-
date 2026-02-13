@@ -13,6 +13,10 @@ PHONE_ID = os.getenv("PHONE_NUMBER_ID")
 
 GRAPH_URL = f"https://graph.facebook.com/v20.0/{PHONE_ID}/messages"
 
+print("✅ VERIFY_TOKEN:", VERIFY_TOKEN)
+print("✅ PHONE_ID:", PHONE_ID)
+print("✅ GRAPH_URL:", GRAPH_URL)
+
 
 # -----------------------------------
 # Send helper
@@ -26,7 +30,7 @@ def send_whatsapp(payload):
     payload["messaging_product"] = "whatsapp"
 
     response = requests.post(GRAPH_URL, headers=headers, json=payload)
-    print("WhatsApp API response:", response.json())
+    print("📤 WhatsApp API response:", response.json())
 
 
 # -----------------------------------
@@ -36,39 +40,56 @@ def send_whatsapp(payload):
 def whatsapp_webhook():
 
     # -----------------------------------
-    # Meta Webhook Verification
+    # Webhook Verification
     # -----------------------------------
     if request.method == "GET":
         mode = request.args.get("hub.mode")
         token = request.args.get("hub.verify_token")
         challenge = request.args.get("hub.challenge")
 
+        print("🔎 Webhook verification request")
+
         if mode == "subscribe" and token == VERIFY_TOKEN:
+            print("✅ Webhook verified successfully")
             return challenge, 200
 
+        print("❌ Webhook verification failed")
         return "Forbidden", 403
 
     # -----------------------------------
-    # Incoming WhatsApp Messages
+    # Incoming Messages
     # -----------------------------------
     if request.method == "POST":
         data = request.json
-        print("Incoming WhatsApp message:", data)
+        print("📩 Incoming WhatsApp payload:", data)
 
         try:
             message = data["entry"][0]["changes"][0]["value"]["messages"][0]
         except Exception:
+            print("⚠️ No message in payload")
             return "EVENT_RECEIVED", 200
 
         from_number = message["from"]
         msg_type = message["type"]
 
+        print("👤 From:", from_number)
+        print("💬 Type:", msg_type)
+
         if msg_type == "text":
             send_main_menu(from_number)
 
         elif msg_type == "interactive":
-            button_id = message["interactive"]["button_reply"]["id"]
-            handle_button(from_number, button_id)
+            interactive = message["interactive"]
+
+            if "button_reply" in interactive:
+                reply_id = interactive["button_reply"]["id"]
+                print("🔘 Button clicked:", reply_id)
+                handle_reply(from_number, reply_id)
+
+            elif "list_reply" in interactive:
+                reply_id = interactive["list_reply"]["id"]
+                print("📋 List selected:", reply_id)
+                handle_reply(from_number, reply_id)
 
         return "EVENT_RECEIVED", 200
 
@@ -114,9 +135,9 @@ def send_main_menu(to):
     })
 
 
-def handle_button(to, btn):
+def handle_reply(to, reply_id):
 
-    if btn == "track_order":
+    if reply_id == "track_order":
         send_whatsapp({
             "to": to,
             "type": "text",
@@ -125,15 +146,24 @@ def handle_button(to, btn):
             }
         })
 
-    elif btn == "buy_product":
+    elif reply_id == "buy_product":
         send_product_list(to)
 
-    elif btn == "support":
+    elif reply_id == "support":
         send_whatsapp({
             "to": to,
             "type": "text",
             "text": {
                 "body": "Connecting you to support..."
+            }
+        })
+
+    elif reply_id.startswith("cat_"):
+        send_whatsapp({
+            "to": to,
+            "type": "text",
+            "text": {
+                "body": f"You selected category: {reply_id}"
             }
         })
 
@@ -148,9 +178,10 @@ def send_product_list(to):
                 "text": "Choose a category"
             },
             "action": {
+                "button": "View Categories",
                 "sections": [
                     {
-                        "title": "Categories",
+                        "title": "Available Categories",
                         "rows": [
                             {"id": "cat_elec", "title": "Electronics"},
                             {"id": "cat_cloth", "title": "Clothing"},
