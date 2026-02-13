@@ -9,7 +9,14 @@ webhook_bp = Blueprint("webhook", __name__)
 
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 TOKEN = os.getenv("WHATSAPP_TOKEN")
-PHONE_ID = os.getenv("PHONE_NUMBER_ID")
+# Support BOTH names (prevents bugs)
+PHONE_ID = (
+    os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+    or os.getenv("PHONE_NUMBER_ID")
+)
+
+if not PHONE_ID:
+    raise Exception("❌ PHONE NUMBER ID missing in ENV")
 
 GRAPH_URL = f"https://graph.facebook.com/v20.0/{PHONE_ID}/messages"
 
