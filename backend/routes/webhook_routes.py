@@ -36,62 +36,117 @@ def send_whatsapp(payload):
 # -----------------------------------
 # Webhook route
 # -----------------------------------
-@webhook_bp.route("/webhook", methods=["GET", "POST"])
-def whatsapp_webhook():
+# @webhook_bp.route("/webhook", methods=["GET"])
+# def whatsapp_webhook():
 
+#     # -----------------------------------
+#     # Webhook Verification
+#     # -----------------------------------
+#     if request.method == "GET":
+#         mode = request.args.get("hub.mode")
+#         token = request.args.get("hub.verify_token")
+#         challenge = request.args.get("hub.challenge")
+
+#         print("🔎 Webhook verification request")
+
+#         if mode == "subscribe" and token == VERIFY_TOKEN:
+#             print("✅ Webhook verified successfully")
+#             return challenge, 200
+
+#         print("❌ Webhook verification failed")
+#         return "Forbidden", 403
+
+#     # -----------------------------------
+#     # Incoming Messages
+#     # -----------------------------------
+#     if request.method == "POST":
+#         data = request.json
+#         print("📩 Incoming WhatsApp payload:", data)
+
+#         try:
+#             message = data["entry"][0]["changes"][0]["value"]["messages"][0]
+#         except Exception:
+#             print("⚠️ No message in payload")
+#             return "EVENT_RECEIVED", 200
+
+#         from_number = message["from"]
+#         msg_type = message["type"]
+
+#         print("👤 From:", from_number)
+#         print("💬 Type:", msg_type)
+
+#         if msg_type == "text":
+#             send_main_menu(from_number)
+
+#         elif msg_type == "interactive":
+#             interactive = message["interactive"]
+
+#             if "button_reply" in interactive:
+#                 reply_id = interactive["button_reply"]["id"]
+#                 print("🔘 Button clicked:", reply_id)
+#                 handle_reply(from_number, reply_id)
+
+#             elif "list_reply" in interactive:
+#                 reply_id = interactive["list_reply"]["id"]
+#                 print("📋 List selected:", reply_id)
+#                 handle_reply(from_number, reply_id)
+
+#         return "EVENT_RECEIVED", 200
+@webhook_bp.route("/webhook", methods=["GET"])
+def verify_webhook():
     # -----------------------------------
-    # Webhook Verification
+    # Webhook Verification (Meta GET)
     # -----------------------------------
-    if request.method == "GET":
-        mode = request.args.get("hub.mode")
-        token = request.args.get("hub.verify_token")
-        challenge = request.args.get("hub.challenge")
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
 
-        print("🔎 Webhook verification request")
+    print("🔎 Webhook verification request")
 
-        if mode == "subscribe" and token == VERIFY_TOKEN:
-            print("✅ Webhook verified successfully")
-            return challenge, 200
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        print("✅ Webhook verified successfully")
+        return challenge, 200
 
-        print("❌ Webhook verification failed")
-        return "Forbidden", 403
-
+    print("❌ Webhook verification failed")
+    return "Forbidden", 403
+@webhook_bp.route("/webhook", methods=["POST"])
+def receive_webhook():
     # -----------------------------------
-    # Incoming Messages
+    # Incoming Messages (Meta POST)
     # -----------------------------------
-    if request.method == "POST":
-        data = request.json
-        print("📩 Incoming WhatsApp payload:", data)
+    data = request.json
+    print("📩 Incoming WhatsApp payload:", data)
 
-        try:
-            message = data["entry"][0]["changes"][0]["value"]["messages"][0]
-        except Exception:
-            print("⚠️ No message in payload")
-            return "EVENT_RECEIVED", 200
-
-        from_number = message["from"]
-        msg_type = message["type"]
-
-        print("👤 From:", from_number)
-        print("💬 Type:", msg_type)
-
-        if msg_type == "text":
-            send_main_menu(from_number)
-
-        elif msg_type == "interactive":
-            interactive = message["interactive"]
-
-            if "button_reply" in interactive:
-                reply_id = interactive["button_reply"]["id"]
-                print("🔘 Button clicked:", reply_id)
-                handle_reply(from_number, reply_id)
-
-            elif "list_reply" in interactive:
-                reply_id = interactive["list_reply"]["id"]
-                print("📋 List selected:", reply_id)
-                handle_reply(from_number, reply_id)
-
+    try:
+        message = data["entry"][0]["changes"][0]["value"]["messages"][0]
+    except Exception:
+        print("⚠️ No message in payload")
         return "EVENT_RECEIVED", 200
+
+    from_number = message["from"]
+    msg_type = message["type"]
+
+    print("👤 From:", from_number)
+    print("💬 Type:", msg_type)
+
+    if msg_type == "text":
+        send_main_menu(from_number)
+
+    elif msg_type == "interactive":
+        interactive = message["interactive"]
+
+        if "button_reply" in interactive:
+            reply_id = interactive["button_reply"]["id"]
+            print("🔘 Button clicked:", reply_id)
+            handle_reply(from_number, reply_id)
+
+        elif "list_reply" in interactive:
+            reply_id = interactive["list_reply"]["id"]
+            print("📋 List selected:", reply_id)
+            handle_reply(from_number, reply_id)
+
+    return "EVENT_RECEIVED", 200
+
 
 
 # -----------------------------------
