@@ -92,23 +92,6 @@ def send_whatsapp(payload):
 #                 handle_reply(from_number, reply_id)
 
 #         return "EVENT_RECEIVED", 200
-@webhook_bp.route("/webhook", methods=["GET"])
-def verify_webhook():
-    # -----------------------------------
-    # Webhook Verification (Meta GET)
-    # -----------------------------------
-    mode = request.args.get("hub.mode")
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
-
-    print("🔎 Webhook verification request")
-
-    if mode == "subscribe" and token == VERIFY_TOKEN:
-        print("✅ Webhook verified successfully")
-        return challenge, 200
-
-    print("❌ Webhook verification failed")
-    return "Forbidden", 403
 
 @webhook_bp.route("/webhook", methods=["POST"])
 def receive_webhook():
@@ -148,6 +131,24 @@ def receive_webhook():
             handle_reply(from_number, reply_id)
 
     return "EVENT_RECEIVED", 200
+
+@webhook_bp.route("/webhook", methods=["GET"])
+def verify_webhook():
+    # -----------------------------------
+    # Webhook Verification (Meta GET)
+    # -----------------------------------
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+
+    print("🔎 Webhook verification request")
+
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        print("✅ Webhook verified successfully")
+        return challenge, 200
+
+    print("❌ Webhook verification failed")
+    return "Forbidden", 403
 
 
 
