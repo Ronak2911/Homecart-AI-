@@ -18,6 +18,16 @@ print("✅ PHONE_ID:", PHONE_ID)
 print("✅ GRAPH_URL:", GRAPH_URL)
 
 
+@webhook_bp.before_app_request
+def log_all_requests():
+    print("\n====================")
+    print("📡 Incoming Request")
+    print("Method:", request.method)
+    print("URL:", request.url)
+    print("Headers:", dict(request.headers))
+    print("====================\n")
+
+
 # -----------------------------------
 # Send helper
 # -----------------------------------
