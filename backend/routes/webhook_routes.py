@@ -115,6 +115,7 @@ def receive_webhook():
     # -----------------------------------
     # Incoming Messages (Meta POST)
     # -----------------------------------
+    print("Request Call post",request.json)
     data = request.json
     print("📩 Incoming WhatsApp payload:", data)
 
