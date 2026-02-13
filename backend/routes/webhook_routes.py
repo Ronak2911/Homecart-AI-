@@ -109,6 +109,7 @@ def verify_webhook():
 
     print("❌ Webhook verification failed")
     return "Forbidden", 403
+
 @webhook_bp.route("/webhook", methods=["POST"])
 def receive_webhook():
     # -----------------------------------
