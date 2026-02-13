@@ -274,3 +274,61 @@ def data_deletion():
     phone number, messages, and profile data.
     </p>
     """
+
+@webhook_bp.route("/privacy-policy")
+def privacy_policy():
+    return """
+    <h2>Privacy Policy</h2>
+    <p>
+    This application provides WhatsApp chatbot services.
+    </p>
+
+    <p>
+    We may collect limited user information such as:
+    </p>
+    <ul>
+        <li>Phone number</li>
+        <li>User messages</li>
+        <li>Profile name (if available)</li>
+    </ul>
+
+    <p>
+    This data is used solely for providing chatbot functionality
+    and improving user experience.
+    </p>
+
+    <p>
+    We do NOT sell, trade, or share user data with third parties.
+    </p>
+
+    <p>
+    If you have any privacy-related concerns, contact us at:
+    <b>patelchit842005@Gmail.com</b>
+    </p>
+    """
+
+@webhook_bp.route("/terms")
+def terms_conditions():
+    return """
+    <h2>Terms & Conditions</h2>
+
+    <p>
+    By using this WhatsApp chatbot, you agree to the following terms:
+    </p>
+
+    <ul>
+        <li>The chatbot is provided for informational/demo purposes.</li>
+        <li>Users must not misuse the service.</li>
+        <li>We are not responsible for decisions made based on chatbot responses.</li>
+        <li>Service availability is not guaranteed.</li>
+    </ul>
+
+    <p>
+    We reserve the right to modify or discontinue the service at any time.
+    </p>
+
+    <p>
+    For questions, contact:
+    <b>patelchit842005@Gmail.com</b>
+    </p>
+    """
