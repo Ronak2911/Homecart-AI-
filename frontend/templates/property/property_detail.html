@@ -4,72 +4,257 @@
 {% block body %}
 
 <div class="container-fluid">
-    
+
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
-            <h3 class="mb-0 fw-bold">{{ p.title }}</h3>
-            <p class="text-muted mb-0"><i class="bi bi-geo-alt-fill"></i> {{ p.location.area }}, {{ p.location.city }}</p>
+
+            <h3 class="mb-0 fw-bold">
+                {{ p.name }}
+            </h3>
+
+            <p class="text-muted mb-0">
+                <i class="bi bi-geo-alt-fill"></i>
+                {{ p.area }}, {{ p.city }}
+            </p>
+
         </div>
+
         <a href="{{ url_for('property.property_list') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back
+
+            <i class="bi bi-arrow-left"></i>
+            Back
+
         </a>
+
     </div>
+
+
 
     <div class="row g-4">
+
+
+        <!-- LEFT SIDE -->
         <div class="col-md-8">
-            <div class="card p-0 overflow-hidden mb-4 shadow-sm" style="border-radius: 16px;">
-                {% if p.media and p.media.images and p.media.images|length > 0 %}
-                    <img src="/static/uploads/{{ p.media.images[0] }}" style="width: 100%; height: 400px; object-fit: cover;">
+
+            <!-- IMAGE -->
+            <div class="card p-0 overflow-hidden mb-4 shadow-sm" style="border-radius:16px;">
+
+                {% if p.media %}
+
+                <img src="/static/uploads/{{ p.media }}" style="width:100%;height:400px;object-fit:cover;">
+
                 {% else %}
-                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 400px; color: #aaa;">
-                        <i class="bi bi-image fs-1"></i>
-                    </div>
+
+                <div class="d-flex align-items-center justify-content-center bg-light" style="height:400px;">
+
+                    <i class="bi bi-image fs-1 text-muted"></i>
+
+                </div>
+
                 {% endif %}
+
             </div>
 
+
+
+            <!-- DESCRIPTION -->
             <div class="card p-4 shadow-sm">
-                <h5 class="fw-bold mb-3 text-primary">Description</h5>
-                <p class="text-secondary" style="line-height: 1.6;">
+
+                <h5 class="fw-bold mb-3 text-primary">
+                    Description
+                </h5>
+
+                <p class="text-secondary">
+
                     {{ p.description if p.description else "No description provided." }}
+
                 </p>
+
             </div>
+
+
+
+            <!-- AMENITIES -->
+            {% if p.amenities %}
+
+            <div class="card p-4 shadow-sm mt-4">
+
+                <h5 class="fw-bold mb-3 text-primary">
+                    Amenities
+                </h5>
+
+                <div class="row">
+
+                    {% for a in p.amenities %}
+
+                    <div class="col-md-6 mb-2">
+
+                        <i class="bi bi-check-circle text-success"></i>
+                        {{ a }}
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
         </div>
 
+
+
+        <!-- RIGHT SIDE -->
         <div class="col-md-4">
+
+
+            <!-- PRICE -->
             <div class="card p-4 mb-4 shadow-sm">
-                <h6 class="text-uppercase text-muted fw-bold small">Price</h6>
-                <h2 class="text-success fw-bold">₹{{ p.price }}</h2>
+
+                <h6 class="text-muted text-uppercase small">
+                    Price
+                </h6>
+
+                <h2 class="text-success fw-bold">
+                    ₹{{ "{:,}".format(p.price) }}
+                </h2>
+
                 <div class="mt-2">
-                    <span class="badge bg-info text-dark px-3 py-2">{{ p.propertytype }}</span>
-                    <span class="badge bg-secondary px-3 py-2">{{ p.status }}</span>
+
+                    <span class="badge bg-info text-dark px-3 py-2">
+                        {{ p.type }}
+                    </span>
+
+                    <span class="badge bg-secondary px-3 py-2">
+                        {{ p.status }}
+                    </span>
+
                 </div>
+
             </div>
 
+
+
+            <!-- DETAILS -->
             <div class="card p-4 shadow-sm">
-                <h5 class="fw-bold mb-3 border-bottom pb-2">Details</h5>
+
+                <h5 class="fw-bold mb-3 border-bottom pb-2">
+                    Property Details
+                </h5>
+
+
                 <div class="row g-3">
+
+
                     <div class="col-6">
-                        <small class="text-muted d-block">BHK</small>
-                        <span class="fw-bold fs-5">{{ p.bhk }}</span>
+
+                        <small class="text-muted">
+                            BHK
+                        </small>
+
+                        <div class="fw-bold fs-5">
+                            {{ p.BHK }}
+                        </div>
+
                     </div>
+
+
+
                     <div class="col-6">
-                        <small class="text-muted d-block">Size</small>
-                        <span class="fw-bold fs-5">{{ p.sizesqft }} <small>sqft</small></span>
+
+                        <small class="text-muted">
+                            Size
+                        </small>
+
+                        <div class="fw-bold fs-5">
+                            {{ p.sqft }} sqft
+                        </div>
+
                     </div>
+
+
+
                     <div class="col-12">
-                        <small class="text-muted d-block">Address</small>
-                        <span class="fw-medium">{{ p.location.address }}</span>
+
+                        <small class="text-muted">
+                            Address
+                        </small>
+
+                        <div>
+                            {{ p.address }}
+                        </div>
+
                     </div>
+
+
+
+                    <div class="col-12">
+
+                        <small class="text-muted">
+                            Pincode
+                        </small>
+
+                        <div>
+                            {{ p.pincode }}
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-12">
+
+                        <small class="text-muted">
+                            Map
+                        </small>
+
+                        <div>
+
+                            <a href="{{ p.maplink }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">
+
+                                <i class="bi bi-map"></i>
+                                View on Map
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
                 </div>
 
-                {% if session.role == 'admin' %}
+
+
+                {% if session.get('role') == 'admin' %}
+
                 <div class="d-grid mt-4">
-                    <a href="/property/edit/{{ p._id }}" class="btn btn-primary">Edit Property</a>
+
+                    <a href="/property/edit/{{ p._id }}" class="btn btn-primary">
+
+                        Edit Property
+
+                    </a>
+
                 </div>
+
                 {% endif %}
+
+
             </div>
+
+
         </div>
+
+
     </div>
+
+
 </div>
 
 {% endblock %}

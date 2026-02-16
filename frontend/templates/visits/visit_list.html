@@ -3,342 +3,198 @@
 
 {% block body %}
 
-<div class="container-fluid py-4">
+<style>
+    .premium-header th {
+        background-color: #2c3e50 !important;
+        /* Dark Blue-Grey */
+        color: white !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+        border: none;
+    }
 
-  <!-- DASHBOARD STATS -->
-  <div class="row g-3 mb-4">
+    .premium-header th:first-child {
+        border-top-left-radius: 8px;
+    }
 
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <small class="text-muted">Total Visits</small>
-          <h4 class="fw-bold mb-0">{{ visits|length }}</h4>
-        </div>
-      </div>
+    .premium-header th:last-child {
+        border-top-right-radius: 8px;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-dark mb-0">Visit Management</h3>
     </div>
 
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <small class="text-muted">Confirmed</small>
-          <h4 class="fw-bold text-success mb-0">
-            {{ visits|selectattr("status","equalto","Confirmed")|list|length }}
-          </h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <small class="text-muted">Pending</small>
-          <h4 class="fw-bold text-warning mb-0">
-            {{ visits|selectattr("status","equalto","Pending")|list|length }}
-          </h4>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-
-  <!-- SEARCH + FILTER -->
-  <div class="card shadow-sm border-0 mb-3">
-
-    <div class="card-body">
-
-      <form method="GET" class="row g-2">
-
-        <!-- SEARCH -->
-        <div class="col-md-4">
-
-          <input type="text"
-                 name="search"
-                 class="form-control form-control-sm shadow-sm"
-                 placeholder="Search customer or property...">
-
-        </div>
-
-        <!-- STATUS -->
-        <div class="col-md-3">
-
-          <select name="status"
-                  class="form-select form-select-sm shadow-sm">
-
-            <option value="">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Confirmed">Confirmed</option>
-
-          </select>
-
-        </div>
-
-        <!-- BUTTON -->
-        <div class="col-md-2">
-
-          <button class="btn btn-primary btn-sm w-100">
-
-            Search
-
-          </button>
-
-        </div>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- VISITS TABLE -->
-  <div class="card border-0 shadow-sm">
-
-    <div class="table-responsive">
-
-      <table class="table table-hover align-middle mb-0">
-
-        <thead class="table-light">
-
-          <tr>
-
-            <th>Customer</th>
-            <th>Property</th>
-            <th>Visit Type</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-
-            {% if user.role == "admin" %}
-            <th>Staff</th>
-            <th>Action</th>
-            {% endif %}
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-        {% for v in visits %}
-
-          <tr>
-
-            <td class="fw-semibold">
-
-              {{ v.customer_name }}
-
-            </td>
-
-
-            <td>
-
-              {{ v.property_title }}
-
-            </td>
-
-
-            <td>
-
-              <span class="badge bg-secondary">
-
-                {{ v.visittype }}
-
-              </span>
-
-            </td>
-
-
-            <td>
-
-              {{ v.preferreddate }}
-
-            </td>
-
-
-            <td>
-
-              {{ v.preferredtime }}
-
-            </td>
-
-
-            <!-- STATUS DROPDOWN -->
-            <td>
-
-              <form method="POST"
-                    action="/visit/update-status/{{ v._id }}">
-
-                <select name="status"
-                        class="form-select form-select-sm"
-
-                        onchange="this.form.submit()">
-
-                  <option value="Pending"
-                    {% if v.status=="Pending" %}selected{% endif %}>
-                    Pending
-                  </option>
-
-                  <option value="Confirmed"
-                    {% if v.status=="Confirmed" %}selected{% endif %}>
-                    Confirmed
-                  </option>
-
-                </select>
-
-              </form>
-
-            </td>
-
-
-            {% if user.role=="admin" %}
-
-            <td>
-
-              {% if v.staff_name %}
-
-                <span class="badge bg-info">
-
-                  {{ v.staff_name }}
-
-                </span>
-
-              {% else %}
-
-                <span class="text-muted">
-
-                  Unassigned
-
-                </span>
-
-              {% endif %}
-
-            </td>
-
-
-            <!-- ASSIGN BUTTON -->
-            <td>
-
-              <button class="btn btn-sm btn-outline-primary"
-
-                      data-bs-toggle="modal"
-                      data-bs-target="#assignModal{{ v._id }}">
-
-                Assign
-
-              </button>
-
-            </td>
-
-            {% endif %}
-
-          </tr>
-
-
-          <!-- ASSIGN STAFF MODAL -->
-          <div class="modal fade"
-               id="assignModal{{ v._id }}">
-
-            <div class="modal-dialog">
-
-              <form method="POST"
-                    action="/visit/assign/{{ v._id }}">
-
-                <div class="modal-content">
-
-                  <div class="modal-header">
-
-                    <h5 class="modal-title">
-
-                      Assign Staff
-
-                    </h5>
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
-
-                    </button>
-
-                  </div>
-
-
-                  <div class="modal-body">
-
-                    <select name="staff_id"
-                            class="form-select">
-
-                      {% for s in staff %}
-
-                      <option value="{{ s._id }}">
-
-                        {{ s.name }}
-
-                      </option>
-
-                      {% endfor %}
-
-                    </select>
-
-                  </div>
-
-
-                  <div class="modal-footer">
-
-                    <button class="btn btn-primary">
-
-                      Assign
-
-                    </button>
-
-                  </div>
-
+    <div class="card shadow-sm border-0 overflow-hidden">
+
+        <div class="card-header bg-white border-bottom p-3">
+            <form method="GET" class="row g-2 align-items-center m-0">
+
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i
+                                class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0 ps-0"
+                            placeholder="Search customer or property..." value="{{ request.args.get('search', '') }}">
+                    </div>
                 </div>
 
-              </form>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="Pending" {% if request.args.get('status')=='Pending' %}selected{% endif %}>
+                            Pending</option>
+                        <option value="Confirmed" {% if request.args.get('status')=='Confirmed' %}selected{% endif %}>
+                            Confirmed</option>
+                    </select>
+                </div>
 
-            </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary w-100">Search</button>
+                        <a href="{{ request.path }}" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
+                </div>
 
-          </div>
+            </form>
+        </div>
 
+        <div class="table-responsive p-3">
+            <table class="table table-hover align-middle mb-0">
 
-        {% endfor %}
+                <thead class="premium-header">
+                    <tr>
+                        <th class="ps-4">Customer</th>
+                        <th>Property</th>
+                        <th>Visit Type</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        {% if session.get('role') == 'admin' %}
+                        <th>Staff</th>
+                        <th>Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
 
-        </tbody>
+                <tbody>
+                    {% for v in visits %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">{{ v.customer_name }}</td>
 
-      </table>
+                        <td class="text-muted">{{ v.property_title }}</td>
+
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ v.visittype }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">{{ v.preferreddate }}</span>
+                                <small class="text-muted">{{ v.preferredtime }}</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <form method="POST" action="/visit/update-status/{{ v._id }}">
+                                <select name="status" class="form-select form-select-sm border-0 fw-bold 
+                                    {% if v.status == 'Confirmed' %}text-success bg-success-subtle
+                                    {% elif v.status == 'Pending' %}text-warning bg-warning-subtle
+                                    {% else %}text-danger bg-danger-subtle{% endif %}" onchange="this.form.submit()"
+                                    style="cursor: pointer; width: auto;">
+
+                                    <option value="Pending" {% if v.status=="Pending" %}selected{% endif %}
+                                        class="text-dark bg-white">Pending</option>
+                                    <option value="Confirmed" {% if v.status=="Confirmed" %}selected{% endif %}
+                                        class="text-dark bg-white">Confirmed</option>
+                                </select>
+                            </form>
+                        </td>
+
+                        {% if session.get('role') == 'admin' %}
+                        <td>
+                            {% if v.staff_name %}
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle border d-flex align-items-center justify-content-center me-2"
+                                    style="width: 24px; height: 24px; font-size: 10px;">
+                                    {{ v.staff_name[0] }}
+                                </div>
+                                <span class="small">{{ v.staff_name }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted small fst-italic">Unassigned</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if session.get('role') == 'admin' %}
+                            <a href="/visit/assign/{{ v._id }}" class="btn btn-primary shadow-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Assign Staff
+                            </a>
+                            {% endif %}
+
+                            <!-- <div class="modal fade" id="assignModal{{ v._id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <form method="POST" action="/visit/assign/{{ v._id }}">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Assign Staff</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <select name="staff_id" class="form-select">
+                                                    <option value="">Choose Staff...</option>
+                                                    {% for s in staff %}
+                                                    <option value="{{ s._id }}">{{ s.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-primary">Save Assignment</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div> -->
+                        </td>
+                        {% endif %}
+
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="text-muted opacity-50">
+                                <i class="bi bi-calendar-x display-4"></i>
+                                <p class="mt-2">No visits found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 py-3">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link border-0 bg-light rounded-start"
+                            href="#">Prev</a></li>
+                    <li class="page-item active"><a class="page-link border-0 shadow-sm" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link border-0" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link border-0 bg-light rounded-end" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
 
     </div>
-
-  </div>
-
-
-  <!-- PAGINATION -->
-  <nav class="mt-3">
-
-    <ul class="pagination pagination-sm justify-content-end">
-
-      <li class="page-item">
-        <a class="page-link" href="#">Previous</a>
-      </li>
-
-      <li class="page-item active">
-        <a class="page-link" href="#">1</a>
-      </li>
-
-      <li class="page-item">
-        <a class="page-link" href="#">2</a>
-      </li>
-
-      <li class="page-item">
-        <a class="page-link" href="#">Next</a>
-      </li>
-
-    </ul>
-
-  </nav>
-
-
 </div>
 
 {% endblock %}

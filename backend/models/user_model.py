@@ -1,4 +1,6 @@
 from bson.objectid import ObjectId
+
+from backend.routes.admin_routes import users
 from ..database.collections import (
     get_inquiries_collection,
     get_visits_collection
@@ -79,3 +81,13 @@ def filter_and_sort_inquiries(inquiries, filters):
         inquiries.reverse()
 
     return inquiries
+
+from bson.objectid import ObjectId
+
+
+@staticmethod
+def delete_user(user_id):
+    
+    return users.collection.delete_one(
+        {"_id": ObjectId(user_id)}
+    )

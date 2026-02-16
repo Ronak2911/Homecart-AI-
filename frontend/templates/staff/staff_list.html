@@ -1,85 +1,169 @@
 {% extends 'base/base.html' %}
-{% block title %}
-User Management
-{% endblock title %}
+{% block title %}User Management{% endblock %}
 
 {% block body %}
-<!-- MAIN -->
-<div class="main">
 
-    <div class="header">
-        <h1>User Management</h1>
-        <button class="add-btn" onclick="UserPage.open()">+ Add User</button>
+<style>
+    .premium-header th {
+        background-color: #2c3e50 !important; /* Dark Blue-Grey */
+        color: white !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+        border: none;
+    }
+    .premium-header th:first-child { border-top-left-radius: 8px; }
+    .premium-header th:last-child { border-top-right-radius: 8px; }
+</style>
+
+<div class="container-fluid">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 fw-bold">Staff Management</h3>
+        <a href="{{ url_for('staff.add_staff') }}" class="btn btn-primary shadow-sm">+ Add Staff</a>
+
     </div>
 
-    <!-- TABLE -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
+    <div class="card shadow-sm border-0 overflow-hidden">
+        
+        <div class="table-responsive p-3">
+            <table class="table table-hover align-middle mb-0">
+                
+                <thead class="premium-header">
+                    <tr>
+                        <th class="ps-4">Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
 
-                <th>Role</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
+                <tbody>
+                    {% for user in users %}
+                    
+                    {% if user.name %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold shadow-sm" 
+                                     style="width: 35px; height: 35px; font-size: 14px;">
+                                    {{ user.name[0] | upper }}
+                                </div>
+                                <span class="fw-bold text-dark">{{ user.name }}</span>
+                            </div>
+                        </td>
 
-        <tbody id="userTable">
-            {% for user in users %}
-            <tr>
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.role }}</td>
-                {% if user.is_active %}
-                    <td><span class="status active">Active</span></td>
-                {% else %}
-                    <td><span class="status inactive">Inactive</span></td>
-                {% endif %}
-                <td>
-                    <button class="action-btn edit" onclick="UserPage.edit(this)">Edit</button>
-                    <button class="action-btn delete" onclick="Common.deleteRow(this)">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        <td class="text-muted">{{ user.email }}</td>
 
+                        <td>
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1 rounded-pill text-uppercase" style="font-size: 0.7rem;">
+                                {{ user.role }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if user.status == 'active' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end pe-4">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{{ url_for('staff.edit_staff', user_id=user._id) }}" 
+                                   class="btn btn-sm text-white shadow-sm border-0" 
+                                   style="min-width: 80px; background-color: #0d6efd;">
+                                    Edit
+                                </a>
+                                
+                                <a href="/staff/delete/{{ user._id }}" 
+                                   class="btn btn-sm btn-danger shadow-sm border-0" 
+                                   style="min-width: 80px;"
+                                   onclick="return confirm('Delete User?')">
+                                    Delete
+                                </a>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted opacity-50">
+                                <i class="bi bi-people display-4"></i>
+                                <p class="mt-2">No users found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 py-3">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link border-0 bg-light rounded-start" href="#">Prev</a></li>
+                    <li class="page-item active"><a class="page-link border-0 shadow-sm" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link border-0" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link border-0 bg-light rounded-end" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal" id="userModal">
-    <div class="modal-content">
-
-        <h2>Add User</h2>
-
-        <!-- FORM REQUIRED -->
-        <form onsubmit="event.preventDefault(); UserPage.add();">
-
-            <input type="text" id="nameInput" placeholder="Full Name">
-            <input type="email" id="emailInput" placeholder="Email">
-            <textarea id="addressInput" placeholder="Address"></textarea>
-
-            <select id="roleInput">
-                <option value="">Select Role</option>
-                <option>Admin</option>
-                <option>Staff</option>
-            </select>
-
-            <select id="statusInput">
-                <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-            </select>
-
-            <div class="modal-actions">
-                <button type="submit" class="add-btn">Submit</button>
-                <button type="button" class="add-btn close-btn" onclick="UserPage.close()">Cancel</button>
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" action="/staff/add">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Add New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Role</label>
+                            <select name="role" class="form-select">
+                                <option value="staff">Staff</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">Create User</button>
+                </div>
             </div>
-
         </form>
-
     </div>
 </div>
 
-{% endblock body %}
+{% endblock %}

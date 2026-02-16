@@ -1,65 +1,67 @@
+import os
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from bson.objectid import ObjectId
 
-from ..models.property_model import get_properties, delete_property
-from ..models.property_model import (
-    get_properties_collection,
-    update_property,
-    add_property
-)
+from ..models.property_model import *
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = "frontend/static/uploads"
+
 
 property_bp = Blueprint("property", __name__)
+
+
+from ..models.property_model import get_properties_filtered
 
 
 @property_bp.route("/properties")
 def property_list():
 
-    # ---------- AUTH ----------
     if "user_id" not in session:
-        return "Unauthorized", 401
+        return redirect(url_for("auth.login"))
 
-    role = session.get("role")   # admin | staff
 
-    # ---------- GET DATA ----------
-    properties = get_properties()
-
-    # ---------- FILTERS ----------
+    # GET FILTER VALUES
     city = request.args.get("city")
     ptype = request.args.get("type")
     status = request.args.get("status")
     sort = request.args.get("sort")
 
-    if city:
-        properties = [
-            p for p in properties
-            if p.get("location", {}).get("city") == city
-        ]
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
 
-    if ptype:
-        properties = [
-            p for p in properties
-            if p.get("propertytype") == ptype
-        ]
 
-    if status:
-        properties = [
-            p for p in properties
-            if p.get("status") == status
-        ]
+    # GET FILTERED DATA
+    properties, total = get_properties_filtered(
+        city=city,
+        ptype=ptype,
+        status=status,
+        sort=sort,
+        page=page,
+        per_page=per_page
+    )
 
-    # ---------- SORT ----------
-    if sort == "price_low":
-        properties.sort(key=lambda x: x.get("price", 0))
 
-    if sort == "price_high":
-        properties.sort(key=lambda x: x.get("price", 0), reverse=True)
+    total_pages = (total + per_page - 1) // per_page
+
+
+    # GET DISTINCT VALUES FOR DROPDOWNS
+    collection = get_properties_collection()
+
+    cities = collection.distinct("city")
+    types = collection.distinct("type")
+    statuses = collection.distinct("status")
+
 
     return render_template(
         "property/property_list.html",
         properties=properties,
-        role=role
+        cities=cities,
+        types=types,
+        statuses=statuses,
+        page=page,
+        total_pages=total_pages
     )
-
 
 @property_bp.route("/property/delete/<pid>")
 def property_delete(pid):
@@ -73,45 +75,66 @@ def property_delete(pid):
 @property_bp.route("/property/add", methods=["GET", "POST"])
 def property_add():
 
-    # 🔒 ADMIN ONLY
     if session.get("role") != "admin":
         return "Forbidden", 403
+
 
     if request.method == "POST":
 
         data = {
-            "title": request.form.get("title"),
-            "propertytype": request.form.get("propertytype"),
-            "bhk": request.form.get("bhk"),
-            "sizesqft": request.form.get("sizesqft"),
-            "budgetrange": request.form.get("budgetrange"),
-            "price": request.form.get("price"),
+
+            "name": request.form.get("name"),
+
+            "type": request.form.get("type"),
+
             "status": request.form.get("status"),
 
-            "location": {
-                "city": request.form.get("city"),
-                "area": request.form.get("area"),
-                "pincode": request.form.get("pincode"),
-                "address": request.form.get("address"),
-                "maplink": request.form.get("maplink"),
-            },
+            "BHK": request.form.get("BHK"),
+
+            "sqft": request.form.get("sqft"),
+
+            "price": int(request.form.get("price", 0)),
+
+            "city": request.form.get("city"),
+
+            "area": request.form.get("area"),
+
+            "pincode": request.form.get("pincode"),
+
+            "address": request.form.get("address"),
+
+            "maplink": request.form.get("maplink"),
 
             "amenities": request.form.get("amenities"),
-            "description": request.form.get("description"),
 
-            "media": {
-                "images": [],   # images handled later
-                "video": ""
-            },
+            "description": request.form.get("description"),
 
             "createdby": ObjectId(session["user_id"])
         }
 
+
+        # IMAGE UPLOAD
+        image = request.files.get("image")
+
+        image = request.files.get("image")
+
+        if image and image.filename:
+
+            filename = secure_filename(image.filename)
+
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+            image.save(filepath)
+
+            data["media"] = filename
+
+
         add_property(data)
+
         return redirect(url_for("property.property_list"))
 
-    return render_template("property/property_add.html")
 
+    return render_template("property/property_add.html")
 
 @property_bp.route("/property/edit/<pid>", methods=["GET", "POST"])
 def property_edit(pid):
@@ -120,48 +143,89 @@ def property_edit(pid):
     if session.get("role") != "admin":
         return "Forbidden", 403
 
+
     properties_col = get_properties_collection()
-    property_data = properties_col.find_one({"_id": ObjectId(pid)})
+
+    property_data = properties_col.find_one({
+        "_id": ObjectId(pid)
+    })
+
 
     if not property_data:
         return "Property not found", 404
+
 
     # ---------- SAVE ----------
     if request.method == "POST":
 
         data = {
-            "title": request.form.get("title"),
-            "propertytype": request.form.get("propertytype"),
-            "bhk": request.form.get("bhk"),
-            "sizesqft": request.form.get("sizesqft"),
-            "price": request.form.get("price"),
-            "budgetrange": request.form.get("budgetrange"),
+
+            "name": request.form.get("name"),
+
+            "type": request.form.get("type"),
+
             "status": request.form.get("status"),
 
-            "location": {
-                "city": request.form.get("city"),
-                "area": request.form.get("area"),
-                "pincode": request.form.get("pincode"),
-                "address": request.form.get("address"),
-                "maplink": request.form.get("maplink"),
-            },
+            "BHK": request.form.get("BHK"),
+
+            "sqft": request.form.get("sqft"),
+
+            "price": int(request.form.get("price", 0)),
+
+            "city": request.form.get("city"),
+
+            "area": request.form.get("area"),
+
+            "pincode": request.form.get("pincode"),
+
+            "address": request.form.get("address"),
+
+            "maplink": request.form.get("maplink"),
 
             "amenities": request.form.get("amenities"),
+
             "description": request.form.get("description"),
         }
 
-        update_property(pid, data)
+
+        # ---------- IMAGE UPLOAD ----------
+        image = request.files.get("image")
+
+        if image and image.filename:
+
+            filename = secure_filename(image.filename)
+
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+            image.save(filepath)
+
+            data["media"] = filename
+
+
+        # ---------- UPDATE ----------
+        properties_col.update_one(
+            {"_id": ObjectId(pid)},
+            {"$set": data}
+        )
+
+
         return redirect(url_for("property.property_list"))
 
-    # ---------- NORMALIZE FOR TEMPLATE ----------
+
+
+    # ---------- NORMALIZE ----------
     property_data["_id"] = str(property_data["_id"])
-    property_data.setdefault("location", {})
-    property_data.setdefault("media", {"images": [], "video": ""})
+
+    property_data.setdefault("media", "")
+
 
     return render_template(
         "property/property_edit.html",
         property=property_data
     )
+
+
+
 # Route to View a Single Property Detail
 @property_bp.route("/property/view/<pid>")
 def property_detail(pid):

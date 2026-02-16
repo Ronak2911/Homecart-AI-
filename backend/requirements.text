@@ -4,4 +4,3 @@ flask-pymongo
 python-dotenv
 pyjwt
 werkzeug
-requests 

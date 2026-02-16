@@ -2,95 +2,345 @@
 {% block title %}Property Management{% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="mb-0 fw-bold">Property Management</h3>
-        {% if role == "admin" %}
-        <a href="/property/add" class="btn btn-primary shadow-sm">+ Add Property</a>
+
+<style>
+    .premium-header th {
+        background-color: #2c3e50 !important;
+        color: white !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        padding: 14px !important;
+    }
+</style>
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h4 class="fw-bold mb-0">Property Management</h4>
+
+        {% if session.get('role') == 'admin' %}
+        <a href="/property/add" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Add Property
+        </a>
         {% endif %}
+
     </div>
 
-    <form method="GET" class="row g-2 mb-4 bg-white p-3 rounded shadow-sm mx-0">
-        <div class="col-md-3">
-            <input name="city" class="form-control" placeholder="City">
-        </div>
-        <div class="col-md-3">
-            <select name="type" class="form-select">
-                <option value="">All Types</option>
-                <option>Flat</option>
-                <option>Villa</option>
-                <option>Plot</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select name="status" class="form-select">
-                <option value="">All Status</option>
-                <option value="available">Available</option>    
-                <option value="sold">Sold</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <button class="btn btn-secondary w-100">Apply Filters</button>
-        </div>
-    </form>
 
-    <div class="card shadow-sm border-0 overflow-hidden">
+    <!-- FILTER BAR -->
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+
+            <form method="GET">
+
+                <div class="row g-2">
+
+                    <!-- CITY -->
+                    <div class="col-md-3">
+
+                        <select name="city" class="form-select">
+
+                            <option value="">All Cities</option>
+
+                            {% for city in cities %}
+                            <option value="{{ city }}" {% if request.args.get('city')==city %}selected{% endif %}>
+                                {{ city }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- TYPE -->
+                    <div class="col-md-2">
+
+                        <select name="type" class="form-select">
+
+                            <option value="">All Types</option>
+
+                            {% for t in types %}
+                            <option value="{{ t }}" {% if request.args.get('type')==t %}selected{% endif %}>
+                                {{ t }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+                   <div class="col-md-2">
+
+    <select name="status" class="form-select">
+
+        <option value="">All Status</option>
+
+        {% for s in statuses %}
+        <option value="{{ s }}"
+        {% if request.args.get('status') == s %}selected{% endif %}>
+            {{ s }}
+        </option>
+        {% endfor %}
+
+    </select>
+
+</div>
+ 
+
+
+                    <!-- SORT -->
+                    <div class="col-md-3">
+
+                        <select name="sort" class="form-select">
+
+                            <option value="">Sort by Price</option>
+
+                            <option value="low" {% if request.args.get('sort')=='low' %}selected{% endif %}>
+                                Price Low → High
+                            </option>
+
+                            <option value="high" {% if request.args.get('sort')=='high' %}selected{% endif %}>
+                                Price High → Low
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- BUTTON -->
+                    <div class="col-md-2 d-flex gap-2">
+
+                        <button class="btn btn-primary w-100">
+                            Apply
+                        </button>
+
+                        <a href="/properties" class="btn btn-outline-secondary w-100">
+                            Reset
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+
+
+    <!-- TABLE -->
+    <div class="card shadow-sm border-0">
+
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="premium-header">
+
                     <tr>
-                        <th class="ps-4">Property</th>
+
+                        <th>#</th>
+                        <th>Name</th>
                         <th>Type</th>
                         <th>BHK</th>
+                        <th>Sqft</th>
                         <th>Price</th>
+                        <th>City</th>
                         <th>Status</th>
-                        <th class="text-end pe-4">Actions</th>
+                        <th class="text-end">Action</th>
+
                     </tr>
+
                 </thead>
+
+
                 <tbody>
+
                     {% for p in properties %}
+
                     <tr>
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center">
-                                {% set images = p.get("media", {}).get("images", []) %}
-                                <img src="{% if images %}/static/uploads/{{ images[0] }}{% else %}https://via.placeholder.com/50{% endif %}" 
-                                     class="rounded me-3" width="50" height="50" style="object-fit: cover;">
-                                <div>
-                                    <div class="fw-bold text-dark">{{ p.title }}</div>
-                                    <small class="text-muted">{{ p.location.city }}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>{{ p.propertytype }}</td>
-                        <td>{{ p.bhk }}</td>
-                        <td class="fw-bold text-dark">₹{{ p.price }}</td>
+
+                        <!-- INDEX -->
                         <td>
-                            <span class="badge {% if p.status == 'Available' %}bg-success-subtle text-success border border-success{% else %}bg-warning-subtle text-warning border border-warning{% endif %} px-3">
-                                {{ p.status }}
+                            {{ loop.index + ((page - 1) * 10) }}
+                        </td>
+
+
+                        <td>
+                            {{ p.name }}
+                        </td>
+
+
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ p.type }}
                             </span>
                         </td>
-                        <td class="text-end pe-4">
-                            <div class="btn-group">
-                                <a href="{{ url_for('property.property_detail', pid=p._id) }}" class="btn btn-sm btn-outline-info">
-                                    <i class="bi bi-eye-fill"></i>
-                                </a>
-                                
-                                {% if role == "admin" %}
-                                <a href="/property/edit/{{ p._id }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a href="/property/delete/{{ p._id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                                {% endif %}
-                            </div>
+
+
+                        <td>
+                            {{ p.BHK }}
                         </td>
+
+
+                        <td>
+                            {{ p.sqft }}
+                        </td>
+
+
+                        <td class="fw-semibold">
+                            ₹{{ (p.price / 100000) | round(2) }} L
+                        </td>
+
+
+                        <td>
+                            {{ p.city }}
+                        </td>
+
+
+                        <td>
+
+                            <span class="badge
+
+{% if p.status == 'Available' %}
+bg-success
+
+{% elif p.status == 'Sold' %}
+bg-danger
+
+{% else %}
+bg-warning
+
+{% endif %}
+
+">
+
+                                {{ p.status }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-end">
+
+                            <a href="/property/view/{{ p._id }}" class="btn btn-sm btn-outline-info">
+
+                                <i class="bi bi-eye"></i>
+
+                            </a>
+
+
+                            {% if session.get('role') == 'admin' %}
+
+                            <a href="/property/edit/{{ p._id }}" class="btn btn-sm btn-outline-primary">
+
+                                <i class="bi bi-pencil"></i>
+
+                            </a>
+
+
+                            <a href="/property/delete/{{ p._id }}" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete property?')">
+
+                                <i class="bi bi-trash"></i>
+
+                            </a>
+
+                            {% endif %}
+
+                        </td>
+
+
                     </tr>
+
                     {% endfor %}
+
+
+                    {% if properties|length == 0 %}
+
+                    <tr>
+
+                        <td colspan="9" class="text-center py-4 text-muted">
+
+                            No properties found
+
+                        </td>
+
+                    </tr>
+
+                    {% endif %}
+
+
                 </tbody>
+
             </table>
+
         </div>
+
+
+
+        <!-- PAGINATION -->
+        <div class="card-footer">
+
+            <ul class="pagination justify-content-end mb-0">
+
+                <li class="page-item {% if page == 1 %}disabled{% endif %}">
+
+                    <a class="page-link"
+                        href="?page={{ page-1 }}&city={{ request.args.get('city','') }}&type={{ request.args.get('type','') }}&status={{ request.args.get('status','') }}&sort={{ request.args.get('sort','') }}">
+
+                        Prev
+
+                    </a>
+
+                </li>
+
+
+                {% for i in range(1, total_pages + 1) %}
+
+                <li class="page-item {% if i == page %}active{% endif %}">
+
+                    <a class="page-link"
+                        href="?page={{ i }}&city={{ request.args.get('city','') }}&type={{ request.args.get('type','') }}&status={{ request.args.get('status','') }}&sort={{ request.args.get('sort','') }}">
+
+                        {{ i }}
+
+                    </a>
+
+                </li>
+
+                {% endfor %}
+
+
+                <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+
+                    <a class="page-link"
+                        href="?page={{ page+1 }}&city={{ request.args.get('city','') }}&type={{ request.args.get('type','') }}&status={{ request.args.get('status','') }}&sort={{ request.args.get('sort','') }}">
+
+                        Next
+
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+        </div>
+
     </div>
+
 </div>
-</div> 
+
 {% endblock %}

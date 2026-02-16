@@ -1,132 +1,180 @@
 {% extends 'base/base.html' %}
-
-{% block title %}
-Customer Management
-{% endblock title %}
+{% block title %}Customer Management{% endblock %}
 
 {% block body %}
 
-<div class="container-fluid customers">
+<style>
+    .premium-header th {
+        background-color: #2c3e50 !important;
+        /* Dark Blue-Grey */
+        color: white !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+        border: none;
+    }
 
-    <h3 class="mb-4">Customer Management</h3>
+    .premium-header th:first-child {
+        border-top-left-radius: 8px;
+    }
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
+    .premium-header th:last-child {
+        border-top-right-radius: 8px;
+    }
+</style>
 
-            <table class="table table-hover table-striped mb-0 align-middle">
+<div class="container-fluid">
 
-                <thead class="table-light">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-dark mb-0">Customer Management</h3>
+    </div>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+
+        <div class="card-header bg-white border-bottom p-3">
+            <form method="GET" class="row g-2 align-items-center m-0">
+
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i
+                                class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0 ps-0"
+                            placeholder="Search name or phone..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <input type="text" name="city" class="form-control" placeholder="Filter by City"
+                        value="{{ request.args.get('city', '') }}">
+                </div>
+
+                <div class="col-md-3">
+                    <select name="leadstatus" class="form-select">
+                        <option value="">All Lead Status</option>
+                        <option value="Hot" {% if request.args.get('leadstatus')=='Hot' %}selected{% endif %}>Hot
+                        </option>
+                        <option value="Warm" {% if request.args.get('leadstatus')=='Warm' %}selected{% endif %}>Warm
+                        </option>
+                        <option value="Cold" {% if request.args.get('leadstatus')=='Cold' %}selected{% endif %}>Cold
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary w-100">Search</button>
+                        <a href="{{ request.path }}" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="table-responsive p-3">
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="premium-header">
                     <tr>
-                        <th>Name</th>
-                        <th>Whatsapp No</th>
+                        <th class="ps-4">Name</th>
+                        <th>WhatsApp</th>
                         <th>City</th>
                         <th>Lead Status</th>
-                        <th>Inquiry Area</th>
-                        <th>Budget Range</th>
-                        <th>Property Type</th>
-                        <th>Inquiry Status</th>
+
+                        <th>Budget</th>
+                        <th>Type</th>
+                        <th class="text-end pe-4">Inquiry Status</th>
                     </tr>
                 </thead>
 
                 <tbody>
-
                     {% if customers %}
-                        {% for customer in customers %}
-                        <tr>
+                    {% for customer in customers %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">
+                            {{ customer.name }}
+                        </td>
 
-                            <!-- Customer Name -->
-                            <td class="fw-semibold">
-                                {{ customer.name }}
-                            </td>
+                        <td class="text-muted">
+                            <i class="bi bi-whatsapp text-success me-1"></i>
+                            {{ customer.whatsappnumber }}
+                        </td>
 
-                            <!-- Whatsapp -->
-                            <td>
-                                {{ customer.whatsappnumber }}
-                            </td>
+                        <td>
+                            {{ customer.city }}
+                        </td>
 
-                            <!-- City -->
-                            <td>
-                                {{ customer.city }}
-                            </td>
+                        <td>
+                            <span class="badge 
+                                    {% if customer.leadstatus|lower == 'hot' %} bg-danger-subtle text-danger border border-danger-subtle
+                                    {% elif customer.leadstatus|lower == 'warm' %} bg-warning-subtle text-warning border border-warning-subtle
+                                    {% elif customer.leadstatus|lower == 'cold' %} bg-secondary-subtle text-secondary border border-secondary-subtle
+                                    {% else %} bg-light text-dark border {% endif %} px-2 py-1">
+                                {{ customer.leadstatus }}
+                            </span>
+                        </td>
 
-                            <!-- Lead Status -->
-                            <td>
-                                <span class="badge
-                                    {% if customer.leadstatus|lower == 'hot' %}
-                                        bg-danger
-                                    {% elif customer.leadstatus|lower == 'warm' %}
-                                        bg-warning text-dark
-                                    {% elif customer.leadstatus|lower == 'cold' %}
-                                        bg-secondary
-                                    {% else %}
-                                        bg-dark
-                                    {% endif %}
-                                ">
-                                    {{ customer.leadstatus }}
-                                </span>
-                            </td>
 
-                            <!-- Inquiry Area -->
-                            <td>
-                                {% if customer.area %}
-                                    {{ customer.area }}
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
 
-                            <!-- Budget Range -->
-                            <td>
-                                {% if customer.budgetrange %}
-                                    <span class="badge bg-success">
-                                        {{ customer.budgetrange }}
-                                    </span>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
+                        <td>
+                            {% if customer.budgetrange %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                {{ customer.budgetrange }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
 
-                            <!-- Property Type -->
-                            <td>
-                                {% if customer.propertytype %}
-                                    {{ customer.propertytype }}
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
+                        <td>
+                            {% if customer.propertytype %}
+                            <span class="badge bg-light text-dark border">{{ customer.propertytype }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
 
-                            <!-- Inquiry Status -->
-                            <td>
-                                {% if customer.status == "No inquiries" %}
-                                    <span class="text-muted">
-                                        No inquiries
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-info">
-                                        {{ customer.status }}
-                                    </span>
-                                {% endif %}
-                            </td>
+                        <td class="text-end pe-4">
+                            {% if customer.status == "No inquiries" %}
+                            <span class="text-muted small fst-italic">No inquiries</span>
+                            {% else %}
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                {{ customer.status }}
+                            </span>
+                            {% endif %}
+                        </td>
 
-                        </tr>
-                        {% endfor %}
+                    </tr>
+                    {% endfor %}
                     {% else %}
-
-                        <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
-                                No customers found
-                            </td>
-                        </tr>
-
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="text-muted opacity-50">
+                                <i class="bi bi-people display-4"></i>
+                                <p class="mt-2">No customers found</p>
+                            </div>
+                        </td>
+                    </tr>
                     {% endif %}
-
                 </tbody>
-
             </table>
-
         </div>
-    </div>
 
+        <div class="card-footer bg-white border-top-0 py-3">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                    <li class="page-item disabled"><a class="page-link border-0 bg-light rounded-start"
+                            href="#">Prev</a></li>
+                    <li class="page-item active"><a class="page-link border-0 shadow-sm" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link border-0" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link border-0 bg-light rounded-end" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
 </div>
 
-{% endblock body %}
+{% endblock %}
