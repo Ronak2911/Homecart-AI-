@@ -12,8 +12,7 @@ def get_customers_collection():
 
 
 def get_inquiries_collection():
-    return mongo.db.inquires
-
+    return mongo.db.inquiries
 
 def get_visits_collection():
     return mongo.db.visits

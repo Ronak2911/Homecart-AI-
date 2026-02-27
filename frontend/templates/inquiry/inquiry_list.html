@@ -25,7 +25,7 @@
         <h3 class="fw-bold text-dark mb-0">
             Inquiry Management
             {% if user.role == "staff" %}
-                <span class="text-muted fs-6 ms-2">(My Assigned)</span>
+            <span class="text-muted fs-6 ms-2">(My Assigned)</span>
             {% endif %}
         </h3>
     </div>
@@ -37,45 +37,63 @@
 
                 <div class="col-md-3">
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-geo-alt"></i></span>
-                        <input type="text" name="city" class="form-control border-start-0 ps-0"
-                               placeholder="Search City..."
-                               value="{{ request.args.get('city', '') }}">
+                        <span
+                            class="input-group-text bg-white border-end-0 text-muted"><i
+                                class="bi bi-geo-alt"></i></span>
+                        <input type="text" name="city"
+                            class="form-control border-start-0 ps-0"
+                            placeholder="Search City..."
+                            value="{{ request.args.get('city', '') }}">
                     </div>
                 </div>
 
                 <div class="col-md-2">
                     <select name="type" class="form-select">
-                        <option value="">All Types</option>
-                        <option value="Apartment" {% if request.args.get('type') == 'Apartment' %}selected{% endif %}>Apartment</option>
-                        <option value="Villa" {% if request.args.get('type') == 'Villa' %}selected{% endif %}>Villa</option>
-                        <option value="Plot" {% if request.args.get('type') == 'Plot' %}selected{% endif %}>Plot</option>
+                        <option value>All Types</option>
+                        <option value="Apartment" {% if request.args.get('type')
+                            == 'Apartment' %}selected{% endif
+                            %}>Apartment</option>
+                        <option value="Villa" {% if request.args.get('type') ==
+                            'Villa' %}selected{% endif %}>Villa</option>
+                        <option value="Plot" {% if request.args.get('type') ==
+                            'Plot' %}selected{% endif %}>Plot</option>
                     </select>
                 </div>
 
                 <div class="col-md-2">
                     <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="open" {% if request.args.get('status') == 'open' %}selected{% endif %}>Open</option>
-                        <option value="contacted" {% if request.args.get('status') == 'contacted' %}selected{% endif %}>Contacted</option>
-                        <option value="visited" {% if request.args.get('status') == 'visited' %}selected{% endif %}>Visited</option>
-                        <option value="closed" {% if request.args.get('status') == 'closed' %}selected{% endif %}>Closed</option>
+                        <option value>All Status</option>
+                        <option value="open" {% if request.args.get('status') ==
+                            'open' %}selected{% endif %}>Open</option>
+                        <option value="contacted" {% if
+                            request.args.get('status') == 'contacted'
+                            %}selected{% endif %}>Contacted</option>
+                        <option value="visited" {% if request.args.get('status')
+                            == 'visited' %}selected{% endif %}>Visited</option>
+                        <option value="closed" {% if request.args.get('status')
+                            == 'closed' %}selected{% endif %}>Closed</option>
                     </select>
                 </div>
 
                 <div class="col-md-2">
                     <select name="sort" class="form-select">
-                        <option value="">Sort By</option>
-                        <option value="newest" {% if request.args.get('sort') == 'newest' %}selected{% endif %}>Newest</option>
-                        <option value="budget_low" {% if request.args.get('sort') == 'budget_low' %}selected{% endif %}>Budget Low → High</option>
-                        <option value="budget_high" {% if request.args.get('sort') == 'budget_high' %}selected{% endif %}>Budget High → Low</option>
+                        <option value>Sort By</option>
+                        <option value="newest" {% if request.args.get('sort') ==
+                            'newest' %}selected{% endif %}>Newest</option>
+                        <option value="budget_low" {% if
+                            request.args.get('sort') == 'budget_low'
+                            %}selected{% endif %}>Budget Low → High</option>
+                        <option value="budget_high" {% if
+                            request.args.get('sort') == 'budget_high'
+                            %}selected{% endif %}>Budget High → Low</option>
                     </select>
                 </div>
 
                 <div class="col-md-3">
                     <div class="d-flex gap-2">
                         <button class="btn btn-primary w-100">Apply</button>
-                        <a href="{{ request.path }}" class="btn btn-outline-secondary w-100">Reset</a>
+                        <a href="{{ request.path }}"
+                            class="btn btn-outline-secondary w-100">Reset</a>
                     </div>
                 </div>
 
@@ -87,7 +105,7 @@
 
                 <thead class="premium-header">
                     <tr>
-                        <th class="ps-4">WhatsApp</th>
+                       
                         <th>City</th>
                         <th>Area</th>
                         <th>Budget</th>
@@ -100,49 +118,60 @@
                 <tbody>
                     {% for i in inquiries %}
                     <tr>
-                        <td class="ps-4 fw-bold text-dark">
-                            <i class="bi bi-whatsapp text-success me-1"></i>
-                            {{ i.whatsappnumber }}
-                        </td>
-
+                       
                         <td class="text-muted">
-                            {{ i.requirements.location.city }}
+                            {{ i.get("City", "N/A") }}
                         </td>
 
                         <td>
-                            {{ i.requirements.location.area }}
+                            {{ i.get("Area", "-") }}
                         </td>
 
                         <td class="fw-bold text-dark">
-                            {% if i.requirements.budgetmin and i.requirements.budgetmax %}
+                            <!-- {% if i.requirements.budgetmin and i.requirements.budgetmax %}
                                 {{ (i.requirements.budgetmin // 100000) }}L – {{ (i.requirements.budgetmax // 100000) }}L
                             {% else %}
                                 <span class="text-muted">-</span>
-                            {% endif %}
+                            {% endif %} -->
+                            {{ i.get("Budget", "-") }}
                         </td>
 
                         <td>
                             <span class="badge bg-light text-dark border">
-                                {{ i.requirements.propertytype }}
+                                {{ i.get("Type", "-") }}
                             </span>
                         </td>
+                        {% set status = i.get("Status", "").lower() %}
+                       <td>
+                            {% if status == "open" %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                    Open
+                                </span>
 
-                        <td>
-                            {% if i.inquirystatus == "open" %}
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Open</span>
-                            {% elif i.inquirystatus == "contacted" %}
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Contacted</span>
-                            {% elif i.inquirystatus == "visited" %}
-                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1">Visited</span>
-                            {% elif i.inquirystatus == "closed" %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Closed</span>
+                            {% elif status == "contacted" %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
+                                    Contacted
+                                </span>
+
+                            {% elif "visit" in status %}
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-02">
+                                    {{ i.get("Status") }}
+                                </span>
+
+                            {% elif status == "closed" %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                    Closed
+                                </span>
+
                             {% else %}
-                                <span class="badge bg-secondary px-2 py-1">{{ i.inquirystatus }}</span>
+                                <span class="badge bg-secondary px-2 py-1">
+                                    {{ i.get("Status", "Unknown") }}
+                                </span>
                             {% endif %}
                         </td>
 
                         <td class="text-end pe-4 text-muted small">
-                            {{ i.source }}
+                            {{ i.get("Source", "-") }}
                         </td>
 
                     </tr>
@@ -163,10 +192,17 @@
         <div class="card-footer bg-white border-top-0 py-3">
             <nav>
                 <ul class="pagination pagination-sm justify-content-end mb-0">
-                    <li class="page-item disabled"><a class="page-link border-0 bg-light rounded-start" href="#">Prev</a></li>
-                    <li class="page-item active"><a class="page-link border-0 shadow-sm" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link border-0" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link border-0 bg-light rounded-end" href="#">Next</a></li>
+                    <li class="page-item disabled"><a
+                            class="page-link border-0 bg-light rounded-start"
+                            href="#">Prev</a></li>
+                    <li class="page-item active"><a
+                            class="page-link border-0 shadow-sm"
+                            href="#">1</a></li>
+                    <li class="page-item"><a class="page-link border-0"
+                            href="#">2</a></li>
+                    <li class="page-item"><a
+                            class="page-link border-0 bg-light rounded-end"
+                            href="#">Next</a></li>
                 </ul>
             </nav>
         </div>

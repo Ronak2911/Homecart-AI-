@@ -63,6 +63,7 @@ def visits_page():
 @visit_bp.route("/visit/assign/<vid>", methods=["GET", "POST"])
 @auth_required
 @role_required("admin")
+
 def assign_visit(vid):
 
     # POST → assign staff
@@ -86,3 +87,52 @@ def assign_visit(vid):
         visit_id=vid,
         staff_list=staff_list
     )
+
+from bson import ObjectId
+from ..database.collections import get_visits_collection
+
+
+# ==========================================
+# UPDATE VISIT STATUS ✅ FIXED
+# ==========================================
+
+from bson import ObjectId
+from ..database.collections import get_visits_collection, get_inquiries_collection
+
+@visit_bp.route("/visit/update-status/<vid>", methods=["POST"])
+@auth_required
+def update_visit_status(vid):
+
+    new_status = request.form.get("status")
+
+    visits_col = get_visits_collection()
+    inquiries_col = get_inquiries_collection()
+
+    visit = visits_col.find_one({"_id": ObjectId(vid)})
+
+    if not visit:
+        return redirect(url_for("visit.visits_page"))
+
+    # ✅ Update visit status
+    visits_col.update_one(
+        {"_id": ObjectId(vid)},
+        {"$set": {"status": new_status}}
+    )
+
+    inquiry_id = visit.get("inquiryid")
+
+    # ✅ If visit confirmed → inquiry becomes Visited
+    if new_status == "Confirmed" and inquiry_id:
+        inquiries_col.update_one(
+            {"_id": inquiry_id},
+            {"$set": {"Status": "Visited"}}
+        )
+
+    # ✅ If visit changed back to Pending → inquiry back to Visit
+    elif new_status == "Pending" and inquiry_id:
+        inquiries_col.update_one(
+            {"_id": inquiry_id},
+            {"$set": {"Status": "Visit"}}
+        )
+
+    return redirect(url_for("visit.visits_page"))

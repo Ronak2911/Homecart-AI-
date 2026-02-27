@@ -3,7 +3,6 @@ from datetime import datetime
 from ..middleware.auth_middleware import auth_required
 from ..middleware.role_middleware import role_required
 from ..database.collections import get_users_collection
-
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash
 from bson import ObjectId

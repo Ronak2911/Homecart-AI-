@@ -28,7 +28,7 @@ def get_inquiries_for_user(user):
             )
         )
 
-        inquiry_ids = [v["inquiryid"] for v in visits]
+        inquiry_ids = [v.get("inquiryid") for v in visits if v.get("inquiryid")]
 
         if not inquiry_ids:
             return []

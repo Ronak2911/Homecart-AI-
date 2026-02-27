@@ -73,12 +73,12 @@
                     <tr>
                         <th class="ps-4">Customer</th>
                         <th>Property</th>
-                        <th>Visit Type</th>
+                       
                         <th>Date & Time</th>
                         <th>Status</th>
                         {% if session.get('role') == 'admin' %}
                         <th>Staff</th>
-                        <th>Action</th>
+                       
                         {% endif %}
                     </tr>
                 </thead>
@@ -86,16 +86,11 @@
                 <tbody>
                     {% for v in visits %}
                     <tr>
-                        <td class="ps-4 fw-bold text-dark">{{ v.customer_name }}</td>
+                        <td class="ps-4 fw-bold text-dark">{{ v.customer.name }}</td>
 
-                        <td class="text-muted">{{ v.property_title }}</td>
+                        <td class="text-muted">{{ v.property.title }}</td>
 
-                        <td>
-                            <span class="badge bg-light text-dark border">
-                                {{ v.visittype }}
-                            </span>
-                        </td>
-
+                      
                         <td>
                             <div class="d-flex flex-column">
                                 <span class="fw-bold text-dark">{{ v.preferreddate }}</span>
@@ -136,9 +131,7 @@
 
                         <td>
                             {% if session.get('role') == 'admin' %}
-                            <a href="/visit/assign/{{ v._id }}" class="btn btn-primary shadow-sm">
-                                <i class="bi bi-plus-lg me-1"></i> Assign Staff
-                            </a>
+                           
                             {% endif %}
 
                             <!-- <div class="modal fade" id="assignModal{{ v._id }}" tabindex="-1">

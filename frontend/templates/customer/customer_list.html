@@ -81,7 +81,7 @@
                         <th class="ps-4">Name</th>
                         <th>WhatsApp</th>
                         <th>City</th>
-                        <th>Lead Status</th>
+                       
 
                         <th>Budget</th>
                         <th>Type</th>
@@ -106,15 +106,7 @@
                             {{ customer.city }}
                         </td>
 
-                        <td>
-                            <span class="badge 
-                                    {% if customer.leadstatus|lower == 'hot' %} bg-danger-subtle text-danger border border-danger-subtle
-                                    {% elif customer.leadstatus|lower == 'warm' %} bg-warning-subtle text-warning border border-warning-subtle
-                                    {% elif customer.leadstatus|lower == 'cold' %} bg-secondary-subtle text-secondary border border-secondary-subtle
-                                    {% else %} bg-light text-dark border {% endif %} px-2 py-1">
-                                {{ customer.leadstatus }}
-                            </span>
-                        </td>
+                       
 
 
 

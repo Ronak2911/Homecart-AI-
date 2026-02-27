@@ -15,6 +15,7 @@ from .routes.settings_routes import settings_bp
 from .routes.visit_routes import visit_bp
 from .routes.dashboard_routes import dashboard_bp
 from .routes.webhook_routes import webhook_bp  
+from .routes.customer_routes import customer_bp
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,6 +57,7 @@ def create_app():
     app.register_blueprint(visit_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(webhook_bp)  # Register webhook blueprint
+    app.register_blueprint(customer_bp)
     @app.context_processor
     def inject_user():
         from flask import session

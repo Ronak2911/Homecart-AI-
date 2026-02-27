@@ -5,160 +5,155 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold text-dark mb-0">DashBoard</h3>
+        <h3 class="fw-bold text-dark mb-0">Dashboard</h3>
     </div>
 
     {% if data.role == "admin" %}
 
+    <!-- ================= ADMIN KPI CARDS ================= -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-0 border-start border-4 border-primary">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-primary rounded-4">
                 <h6 class="text-muted text-uppercase small fw-bold">Total Properties</h6>
                 <h2 class="mb-0 text-primary">{{ data.stats.properties }}</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-0 border-start border-4 border-success">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-success rounded-4">
                 <h6 class="text-muted text-uppercase small fw-bold">Total Customers</h6>
                 <h2 class="mb-0 text-success">{{ data.stats.customers }}</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-0 border-start border-4 border-warning">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-warning rounded-4">
                 <h6 class="text-muted text-uppercase small fw-bold">Total Inquiries</h6>
                 <h2 class="mb-0 text-warning">{{ data.stats.inquiries }}</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 shadow-sm border-0 border-start border-4 border-info">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-info rounded-4">
                 <h6 class="text-muted text-uppercase small fw-bold">Total Visits</h6>
                 <h2 class="mb-0 text-info">{{ data.stats.visits }}</h2>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">Regional Performance Overview</h5>
-                <small class="text-muted">Comparing Inquiries vs. Site Visits across cities</small>
-            </div>
-        </div>
-
-        <div style="height: 400px; width: 100%;">
-            <canvas id="smartChart"></canvas>
+    <!-- ================= ADMIN BAR CHART ================= -->
+    <div class="card shadow-sm border-0 p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3">Overall System Overview</h5>
+        <div style="height: 350px;">
+            <canvas id="adminBarChart"></canvas>
         </div>
     </div>
 
     {% else %}
 
+    <!-- ================= STAFF KPI CARDS ================= -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card p-3 text-center shadow-sm">
-                <h6>My Visits</h6>
-                <h2>{{ data.stats.total }}</h2>
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-primary rounded-4">
+                <h6 class="text-muted text-uppercase small fw-bold">My Visits</h6>
+                <h2 class="mb-0 text-primary">{{ data.stats.total }}</h2>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card p-3 text-center shadow-sm">
-                <h6>Upcoming</h6>
-                <h2>{{ data.stats.upcoming }}</h2>
+
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-warning rounded-4">
+                <h6 class="text-muted text-uppercase small fw-bold">Upcoming</h6>
+                <h2 class="mb-0 text-warning">{{ data.stats.upcoming }}</h2>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card p-3 text-center shadow-sm">
-                <h6>Completed</h6>
-                <h2>{{ data.stats.completed }}</h2>
+
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-success rounded-4">
+                <h6 class="text-muted text-uppercase small fw-bold">Completed</h6>
+                <h2 class="mb-0 text-success">{{ data.stats.completed }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm border-0 border-start border-4 border-info rounded-4">
+                <h6 class="text-muted text-uppercase small fw-bold">Performance %</h6>
+                <h2 class="mb-0 text-info">
+                    {% if data.stats.total > 0 %}
+                        {{ ((data.stats.completed / data.stats.total) * 100) | round(1) }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </h2>
             </div>
         </div>
     </div>
 
-    <div class="card p-3 shadow-sm border-0">
-        <h6 class="fw-bold">My Daily Visit Trend</h6>
-        <canvas id="dailyChart"></canvas>
+    <!-- ================= STAFF BAR CHART ================= -->
+    <div class="card shadow-sm border-0 p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3">My Visit Overview</h5>
+        <div style="height: 350px;">
+            <canvas id="staffBarChart"></canvas>
+        </div>
     </div>
 
     {% endif %}
 </div>
 
+<!-- ================= CHART JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 {% if data.role == "admin" %}
 <script>
-    const ctx = document.getElementById('smartChart').getContext('2d');
 
-    // 1. Get Data from Flask
-    const cityLabels = {{ data.city_chart["labels"] | tojson }};
-    const inquiryValues = {{ data.city_chart["values"] | tojson }};
+new Chart(document.getElementById('adminBarChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Properties', 'Customers', 'Inquiries', 'Visits'],
+        datasets: [{
+            data: [
+                {{ data.stats.properties }},
+                {{ data.stats.customers }},
+                {{ data.stats.inquiries }},
+                {{ data.stats.visits }}
+            ],
+            backgroundColor: ['#3498db','#2ecc71','#f39c12','#9b59b6'],
+            borderRadius: 8,
+            barThickness: 60
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
 
-    // 2. Simulate "Visit" data (approx 55% of inquiries)
-    const visitValues = inquiryValues.map(val => Math.ceil(val * 0.55));
-
-    // 3. Render The Combo Chart
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: cityLabels,
-            datasets: [
-                {
-                    label: 'Inquiries',
-                    data: inquiryValues,
-                    backgroundColor: 'rgba(52, 152, 219, 0.8)', // Blue
-                    borderRadius: 6,
-                    barPercentage: 0.6,
-                    order: 2
-                },
-                {
-                    label: 'Site Visits',
-                    data: visitValues,
-                    type: 'line', // Line Overlay
-                    borderColor: '#2ecc71', // Green
-                    backgroundColor: '#2ecc71',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    order: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    titleColor: '#2c3e50',
-                    bodyColor: '#2c3e50',
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    displayColors: true,
-                }
-            },
-            scales: {
-                y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
-                x: { grid: { display: false } }
-            }
-        }
-    });
 </script>
+
 {% else %}
 <script>
-    new Chart(document.getElementById('dailyChart'), {
-        type: 'line',
-        data: {
-            labels: {{ data.daily_chart["labels"] | tojson }},
+
+new Chart(document.getElementById('staffBarChart'), {
+    type: 'bar',
+    data: {
+        labels: ['My Visits', 'Upcoming', 'Completed'],
         datasets: [{
-            label: 'Visits',
-            data: {{ data.daily_chart["values"] | tojson }},
-        borderColor: '#3498db',
-        tension: 0.3,
-        fill: true,
-        backgroundColor: 'rgba(52, 152, 219, 0.1)'
-            }]
-        },
-        options: { responsive: true }
-    });
+            data: [
+                {{ data.stats.total }},
+                {{ data.stats.upcoming }},
+                {{ data.stats.completed }}
+            ],
+            backgroundColor: ['#3498db','#f39c12','#2ecc71'],
+            borderRadius: 8,
+            barThickness: 60
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
 </script>
 {% endif %}
 
