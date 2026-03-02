@@ -61,41 +61,43 @@
 
 
 from flask import Blueprint, render_template, request
-from ..models.customer_model import show_customers
+from ..models.customer_model import get_customers_collection
+
 
 customer_bp = Blueprint("customers", __name__)
-
-@customer_bp.route("/customers")
+@customer_bp.route("/customer-list")
 def customers():
 
-    print("📢 Customers route called")
+    customers = get_customers_collection()
+    search = request.args.get("search", "").strip()
+    city = request.args.get("city", "").strip()
 
-    customers_data = show_customers()
 
-    search = request.args.get("search", "").lower()
-    city = request.args.get("city", "").lower()
-    leadstatus = request.args.get("leadstatus", "").lower()
+    query = {}
 
-    filtered = []
+    # 🔍 Search filter (Name or WhatsApp)
+    if search:
+        query["$or"] = [
+            {"Name": {"$regex": search, "$options": "i"}},
+            {"WhatsApp": {"$regex": search, "$options": "i"}}
+        ]
 
-    for c in customers_data:
+    # 🏙 City filter
+    if city:
+        query["City"] = {"$regex": city, "$options": "i"}
 
-        if search:
-            if search not in (c["name"] or "").lower() and \
-               search not in (c["whatsappnumber"] or "").lower():
-                continue
+    data = list(customers.find(query))
 
-        if city:
-            if city not in (c["city"] or "").lower():
-                continue
+    result = []
 
-        if leadstatus:
-            if leadstatus != (c["leadstatus"] or "").lower():
-                continue
+    for customer in data:
+        result.append({
+            "name": customer.get("Name", ""),
+            "whatsappnumber": customer.get("WhatsApp", ""),
+            "city": customer.get("City", ""),
+            "budgetrange": customer.get("Budget", ""),
+            "propertytype": customer.get("Type", ""),
+            "status": customer.get("Inquiry Status", "No inquiries")
+        })
 
-        filtered.append(c)
-
-    return render_template(
-        "customer_list.html",
-        customers=filtered
-    )
+    return render_template("customer/customer_list.html", customers=result)

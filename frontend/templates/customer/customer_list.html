@@ -35,7 +35,7 @@
     <div class="card shadow-sm border-0 overflow-hidden">
 
         <div class="card-header bg-white border-bottom p-3">
-            <form method="GET" class="row g-2 align-items-center m-0">
+            <form method="GET"  action="{{ url_for('customers.customers') }}" class="row g-2 align-items-center m-0">
 
                 <div class="col-md-4">
                     <div class="input-group">
@@ -46,24 +46,14 @@
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <input type="text" name="city" class="form-control" placeholder="Filter by City"
                         value="{{ request.args.get('city', '') }}">
                 </div>
 
-                <div class="col-md-3">
-                    <select name="leadstatus" class="form-select">
-                        <option value="">All Lead Status</option>
-                        <option value="Hot" {% if request.args.get('leadstatus')=='Hot' %}selected{% endif %}>Hot
-                        </option>
-                        <option value="Warm" {% if request.args.get('leadstatus')=='Warm' %}selected{% endif %}>Warm
-                        </option>
-                        <option value="Cold" {% if request.args.get('leadstatus')=='Cold' %}selected{% endif %}>Cold
-                        </option>
-                    </select>
-                </div>
+               
 
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <div class="d-flex gap-2">
                         <button class="btn btn-primary w-100">Search</button>
                         <a href="{{ request.path }}" class="btn btn-outline-secondary w-100">Reset</a>
@@ -81,8 +71,6 @@
                         <th class="ps-4">Name</th>
                         <th>WhatsApp</th>
                         <th>City</th>
-                       
-
                         <th>Budget</th>
                         <th>Type</th>
                         <th class="text-end pe-4">Inquiry Status</th>

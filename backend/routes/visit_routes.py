@@ -33,10 +33,11 @@ def visits_page():
     # Filters
     filters = {
         "city": request.args.get("city"),
-        "staffid": request.args.get("staffid"),
+        "customerid": request.args.get("customerid"),
         "status": request.args.get("status"),
         "propertyid": request.args.get("propertyid"),
-        "visitdate": request.args.get("visitdate")
+        "visitdate": request.args.get("visitdate"),
+        "search": request.args.get("search")
     }
 
     # Get visits

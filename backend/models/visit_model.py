@@ -77,11 +77,11 @@ def get_visits_with_filters(user, filters=None):
         if filters.get("city"):
             match_filter["customer.City"] = filters["city"]
 
-        if filters.get("staffid"):
+        if filters.get("customerid"):
             try:
-                match_filter["usersid"] = ObjectId(filters["staffid"])
+                match_filter["customerid"] = ObjectId(filters["customerid"])
             except:
-                print("❌ Invalid staffid filter")
+                print("❌ Invalid customerid filter")
 
         if filters.get("status"):
             match_filter["status"] = filters["status"]
@@ -94,12 +94,21 @@ def get_visits_with_filters(user, filters=None):
 
         if filters.get("visitdate"):
             match_filter["preferreddate"] = filters["visitdate"]
+        
+        if filters.get("search"):
+            search_value = filters["search"].strip()
+
+            match_filter["$or"] = [
+                {"customer.Name": {"$regex": search_value, "$options": "i"}},
+                {"property.name": {"$regex": search_value, "$options": "i"}},
+                {"property.title": {"$regex": search_value, "$options": "i"}}
+            ]
 
     if match_filter:
         pipeline.append({"$match": match_filter})
 
     # =========================
-    # SORT
+    # SORT  
     # =========================
     pipeline.append({
         "$sort": {"preferreddate": -1}

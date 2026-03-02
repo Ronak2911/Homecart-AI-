@@ -71,73 +71,79 @@
 #             })
 
 #     return result
+from unicodedata import name
+
 from ..database.collections import get_customers_collection, get_inquiries_collection
 
 def show_customers():
 
     customers_col = get_customers_collection()
-    inquiries_col = get_inquiries_collection()
+    # inquiries_col = get_inquiries_collection()
 
     customers = list(customers_col.find())
-    inquiries = list(inquiries_col.find())
+    # inquiries = list(inquiries_col.find())
 
     result = []
+    # inquiry_map = {}
 
-    inquiry_map = {}
+    # for inquiry in inquiries:
+    #     customerid = inquiry.get("customerid")
 
-    for inquiry in inquiries:
-        customerid = inquiry.get("customerid")
+    #     if customerid not in inquiry_map:
+    #         inquiry_map[customerid] = []
 
-        if customerid not in inquiry_map:
-            inquiry_map[customerid] = []
-
-        inquiry_map[customerid].append(inquiry)
+    #     inquiry_map[customerid].append(inquiry)
 
     for customer in customers:
 
-        customer_id = customer["_id"]
-        customer_inquiries = inquiry_map.get(customer_id, [])
+            # customer_id = customer["_id"]
+            # customer_inquiries = inquiry_map.get(customer_id, [])
 
-        if customer_inquiries:
+            # if customer_inquiries:
 
-            for inquiry in customer_inquiries:
+            #     for inquiry in customer_inquiries:
 
-                location = inquiry.get("location", {})
-                requirements = inquiry.get("requirements", {})
+            #         location = inquiry.get("location", {})
+            #         requirements = inquiry.get("requirements", {})
 
-                budgetmin = requirements.get("budgetmin")
-                budgetmax = requirements.get("budgetmax")
+            #         budgetmin = requirements.get("budgetmin")
+            #         budgetmax = requirements.get("budgetmax")
 
-                if budgetmin and budgetmax:
-                    budgetrange = f"{int(budgetmin/100000)}L-{int(budgetmax/100000)}L"
-                else:
-                    budgetrange = customer.get("Budget") or "-"
+            #         if budgetmin and budgetmax:
+            #             budgetrange = f"{int(budgetmin/100000)}L-{int(budgetmax/100000)}L"
+            #         else:
+            #             budgetrange = customer.get("Budget", "")
 
-                result.append({
-                    "name": customer.get("Name") or "-",
-                    "whatsappnumber": customer.get("WhatsApp") or "-",
-                    "city": customer.get("City") or "-",
-                    "leadstatus": customer.get("Lead Status") or "-",
+                # result.append({
+                #     "name": customer.get("Name", ""),
+                #     "whatsappnumber": customer.get("WhatsApp", ""),
+                #     "city": customer.get("City", ""),
+                #     # "area": location.get("area", ""),
+                #     # "budgetrange": budgetrange,
+                #     # "propertytype": requirements.get("propertytype") or customer.get("Type", ""),
+                #     "budgetrange": str(customer.get("Budget", "")).strip(),
+                #     "propertytype": str(customer.get("Type", "")).strip(),
+                #     "status": inquiry.get("inquirystatus") or customer.get("Inquiry Status", "No inquiries")
+                # })
+        result.append({
+            "name": str(customer.get("Name", "")).strip(),
+            "whatsappnumber": str(customer.get("WhatsApp", "")).strip(),
+            "city": str(customer.get("City", "")).strip(),
+            "budgetrange": str(customer.get("Budget", "")).strip(),
+            "propertytype": str(customer.get("Type", "")).strip(),
+            "status": str(customer.get("Inquiry Status", "No inquiries")).strip()
+        }) 
 
-                    "area": location.get("area") or "-",
-                    "budgetrange": budgetrange,
-                    "propertytype": requirements.get("propertytype") or customer.get("Type") or "-",
-                    "status": inquiry.get("inquirystatus") or customer.get("Inquiry Status") or "No inquiries"
-                })
+        # else:
 
-        else:
-
-            result.append({
-                "name": customer.get("Name") or "-",
-                "whatsappnumber": customer.get("WhatsApp") or "-",
-                "city": customer.get("City") or "-",
-                "leadstatus": customer.get("Lead Status") or "-",
-
-                "area": "-",
-                "budgetrange": customer.get("Budget") or "-",
-                "propertytype": customer.get("Type") or "-",
-                "status": customer.get("Inquiry Status") or "No inquiries"
-            })
+        #     result.append({
+        #         "name": customer.get("Name", ""),
+        #         "whatsappnumber": customer.get("WhatsApp", ""),
+        #         "city": customer.get("City", ""),
+        #         "area": "",
+        #         "budgetrange": customer.get("Budget", ""),
+        #         "propertytype": customer.get("Type", ""),
+        #         "status": customer.get("Inquiry Status", "No inquiries")
+        #     })
 
     return result
-

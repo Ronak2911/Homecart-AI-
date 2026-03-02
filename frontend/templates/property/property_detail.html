@@ -21,7 +21,8 @@
 
         </div>
 
-        <a href="{{ url_for('property.property_list') }}" class="btn btn-outline-secondary">
+        <a href="{{ url_for('property.property_list') }}"
+            class="btn btn-outline-secondary">
 
             <i class="bi bi-arrow-left"></i>
             Back
@@ -30,24 +31,25 @@
 
     </div>
 
-
-
     <div class="row g-4">
-
 
         <!-- LEFT SIDE -->
         <div class="col-md-8">
 
             <!-- IMAGE -->
-            <div class="card p-0 overflow-hidden mb-4 shadow-sm" style="border-radius:16px;">
+            <div class="card p-0 overflow-hidden mb-4 shadow-sm"
+                style="border-radius:16px;">
 
                 {% if p.media %}
 
-                <img src="/static/uploads/{{ p.media }}" style="width:100%;height:400px;object-fit:cover;">
+                <img src="/static/uploads/{{ p.media }}"
+                    style="width:100%;height:400px;object-fit:cover;">
 
                 {% else %}
 
-                <div class="d-flex align-items-center justify-content-center bg-light" style="height:400px;">
+                <div
+                    class="d-flex align-items-center justify-content-center bg-light"
+                    style="height:400px;">
 
                     <i class="bi bi-image fs-1 text-muted"></i>
 
@@ -56,8 +58,6 @@
                 {% endif %}
 
             </div>
-
-
 
             <!-- DESCRIPTION -->
             <div class="card p-4 shadow-sm">
@@ -68,13 +68,12 @@
 
                 <p class="text-secondary">
 
-                    {{ p.description if p.description else "No description provided." }}
+                    {{ p.description if p.description else
+                    "No description provided." }}
 
                 </p>
 
             </div>
-
-
 
             <!-- AMENITIES -->
             {% if p.amenities %}
@@ -87,31 +86,22 @@
 
                 <div class="row">
 
-                    {% for a in p.amenities %}
-
-                    <div class="col-md-6 mb-2">
-
+                    {% for amenity in p.amenities %}
+                    <div class="col-md-6">
                         <i class="bi bi-check-circle text-success"></i>
-                        {{ a }}
-
+                        {{ amenity }}
                     </div>
-
                     {% endfor %}
-
                 </div>
 
             </div>
 
             {% endif %}
 
-
         </div>
-
-
 
         <!-- RIGHT SIDE -->
         <div class="col-md-4">
-
 
             <!-- PRICE -->
             <div class="card p-4 mb-4 shadow-sm">
@@ -138,8 +128,6 @@
 
             </div>
 
-
-
             <!-- DETAILS -->
             <div class="card p-4 shadow-sm">
 
@@ -147,9 +135,7 @@
                     Property Details
                 </h5>
 
-
                 <div class="row g-3">
-
 
                     <div class="col-6">
 
@@ -163,8 +149,6 @@
 
                     </div>
 
-
-
                     <div class="col-6">
 
                         <small class="text-muted">
@@ -176,8 +160,6 @@
                         </div>
 
                     </div>
-
-
 
                     <div class="col-12">
 
@@ -191,8 +173,6 @@
 
                     </div>
 
-
-
                     <div class="col-12">
 
                         <small class="text-muted">
@@ -205,8 +185,6 @@
 
                     </div>
 
-
-
                     <div class="col-12">
 
                         <small class="text-muted">
@@ -215,7 +193,8 @@
 
                         <div>
 
-                            <a href="{{ p.maplink }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">
+                            <a href="{{ p.maplink }}" target="_blank"
+                                class="btn btn-sm btn-outline-primary mt-1">
 
                                 <i class="bi bi-map"></i>
                                 View on Map
@@ -226,16 +205,14 @@
 
                     </div>
 
-
                 </div>
-
-
 
                 {% if session.get('role') == 'admin' %}
 
                 <div class="d-grid mt-4">
 
-                    <a href="/property/edit/{{ p._id }}" class="btn btn-primary">
+                    <a href="/property/edit/{{ p._id }}"
+                        class="btn btn-primary">
 
                         Edit Property
 
@@ -245,15 +222,11 @@
 
                 {% endif %}
 
-
             </div>
-
 
         </div>
 
-
     </div>
-
 
 </div>
 

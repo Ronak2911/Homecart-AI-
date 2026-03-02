@@ -78,7 +78,9 @@ def property_add():
     if session.get("role") != "admin":
         return "Forbidden", 403
 
+    raw_amenities = request.form.get("amenities", "")
 
+    amenities_list = [a.strip() for a in raw_amenities.split(",") if a.strip()]
     if request.method == "POST":
 
         data = {
@@ -105,7 +107,7 @@ def property_add():
 
             "maplink": request.form.get("maplink"),
 
-            "amenities": request.form.get("amenities"),
+            "amenities": amenities_list,
 
             "description": request.form.get("description"),
 
@@ -154,7 +156,8 @@ def property_edit(pid):
     if not property_data:
         return "Property not found", 404
 
-
+    raw_amenities = request.form.get("amenities", "")
+    amenities_list = [a.strip() for a in raw_amenities.split(",") if a.strip()]
     # ---------- SAVE ----------
     if request.method == "POST":
 
@@ -182,7 +185,7 @@ def property_edit(pid):
 
             "maplink": request.form.get("maplink"),
 
-            "amenities": request.form.get("amenities"),
+            "amenities": amenities_list,
 
             "description": request.form.get("description"),
         }
@@ -207,7 +210,7 @@ def property_edit(pid):
             {"_id": ObjectId(pid)},
             {"$set": data}
         )
-
+       
 
         return redirect(url_for("property.property_list"))
 
@@ -218,7 +221,9 @@ def property_edit(pid):
 
     property_data.setdefault("media", "")
 
-
+    if isinstance(property_data.get("amenities"), list):
+                property_data["amenities"] = ", ".join(property_data["amenities"])
+    
     return render_template(
         "property/property_edit.html",
         property=property_data
